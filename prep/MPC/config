@@ -1,0 +1,7 @@
+type configure
+option configure --disable-shared
+option configure --with-gmp-include=%PREP%/GMP/build
+option configure --with-gmp-lib=%PREP%/GMP/build/.libs
+option configure --with-mpfr-include=%PREP%/MPFR/src/src
+option configure --with-mpfr-lib=%PREP%/MPFR/build/src/.libs
+option hack localeconv

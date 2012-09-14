@@ -1,0 +1,5 @@
+type configure
+option configure --disable-shared
+option configure --with-gmp-include=%PREP%/GMP/build
+option configure --with-gmp-lib=%PREP%/GMP/build/.libs
+option hack localeconv

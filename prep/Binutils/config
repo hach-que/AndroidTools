@@ -1,0 +1,5 @@
+type configure
+#include headers GCC/some/path
+#include libraries GCC/some/path
+#link m
+#option configure --something

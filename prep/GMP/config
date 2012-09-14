@@ -1,0 +1,2 @@
+type configure
+option configure --disable-shared

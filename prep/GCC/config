@@ -1,0 +1,20 @@
+type configure
+option configure --with-newlib
+option configure --without-headers
+option configure --with-local-prefix=%ROOT%
+option configure --disable-shared
+option configure --disable-decimal-float
+option configure --disable-threads
+option configure --disable-libmudflap
+option configure --disable-libssp
+option configure --disable-libgomp
+option configure --disable-libquadmath
+option configure --disable-multilib
+option configure --enable-languages=c
+option configure --with-gmp-include=%PREP%/GMP/build
+option configure --with-gmp-lib=%PREP%/GMP/build/.libs
+option configure --with-mpfr-include=%PREP%/MPFR/src/src
+option configure --with-mpfr-lib=%PREP%/MPFR/build/src/.libs
+option configure --with-mpc-include=%PREP%/MPC/src/src
+option configure --with-mpc-lib=%PREP%/MPC/build/src/.libs
+option configure --with-sysroot=/system
