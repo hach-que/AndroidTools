@@ -1,0 +1,3 @@
+type configure
+option configure --disable-nls
+option non-android

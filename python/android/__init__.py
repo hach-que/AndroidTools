@@ -6,7 +6,7 @@ import subprocess
 import sys
 import shutil
 import tarfile
-from pyparsing import Literal, Or, Word, printables, alphanums, alphas, LineEnd
+from pyparsing import Literal, Or, Word, printables, alphanums, alphas, LineEnd, Optional
 
 CONFIG_PREP_ROOT = "/build/prep"
 CONFIG_APP_ROOT = "/data/data/kevinboone.androidterm/kbox/usr"
@@ -35,6 +35,9 @@ class ConfigureProvider():
         # Define hacks
         self._hacks = list()
 
+        # Define default CPU
+        self._cpu = "arm-linux-androideabi"
+
     def accept(self, args):
         if (args[0] == "include" and args[1] == "headers"):
             self._include_paths.append(args[2])
@@ -42,10 +45,14 @@ class ConfigureProvider():
             self._linker_paths.append(args[2])
         elif (args[0] == "link"):
             self._linker_libs.append(args[1])
-        elif (args[0] == "option" and args[1] == "configure"):
+        elif (args[0] == "option" and args[1] == "configure" and len(args) == 3):
             self._configure_params.append(args[2])
-        elif (args[0] == "option" and args[1] == "hack"):
+        elif (args[0] == "option" and args[1] == "hack" and len(args) == 3):
             self._hacks.append(args[2].lower())
+        elif (args[0] == "option" and args[1] == "cpu" and len(args) == 3):
+            self._cpu = args[2]
+        elif (args[0] == "option" and args[1] == "non-android" and len(args) == 2):
+            self._cpu = "arm-linux-gnu"
         else:
             raise Exception("unknown entry in configuration file: " + str(args))
 
@@ -58,10 +65,10 @@ class ConfigureProvider():
     def build(self):
         # Create environment variables
         LDFLAGS = ""
-        CFLAGS = "-Wno-error"
-        CCFLAGS = "-Wno-error"
-        CXXFLAGS = "-Wno-error"
-        CPPFLAGS = "-Wno-error"
+        CFLAGS = "-Wno-error "
+        CCFLAGS = "-Wno-error "
+        CXXFLAGS = "-Wno-error "
+        CPPFLAGS = "-Wno-error "
         for i in self._linker_paths:
             LDFLAGS += "-L" + i + " "
         for i in self._linker_libs:
@@ -97,8 +104,8 @@ class ConfigureProvider():
         configure.append("../src/configure")
         configure.append("--prefix=" + CONFIG_APP_ROOT)
         configure.append("--build=x86_64-unknown-linux-gnu")
-        configure.append("--host=arm-linux-androideabi")
-        configure.append("--target=arm-linux-androideabi")
+        configure.append("--host=" + self._cpu)
+        configure.append("--target=" + self._cpu)
         for i in self._configure_params:
             configure.append(i)
 
@@ -188,7 +195,7 @@ def parse_config(filename, pkgname):
                   Literal("headers") | \
                   Literal("libraries") ) + Word(printables + " ") + LineEnd() ) | \
               ( Literal("link") + Word(alphanums) ) | \
-              ( Literal("option") + Word(alphas) + Word(printables + " ") + LineEnd() )
+              ( Literal("option") + Word(alphas + "-") + Optional(Word(printables + " ")) + LineEnd() )
 
     current_type = None
 
