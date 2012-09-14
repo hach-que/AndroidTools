@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import android
+import sys
+import argparse
+
+# Parse arguments
+parser = argparse.ArgumentParser(description="Builds and packages normal Linux applications for Android.")
+parser.add_argument("package", nargs=1,
+        help="the package name to build and package")
+parser.add_argument("--no-build", dest="nobuild", action="store_true",
+        help="do not build or re-build the package")
+parser.add_argument("--no-package", dest="nopackage", action="store_true",
+        help="do not package the result of the build")
+parser.add_argument("-o", dest="output", action="store", default="all",
+        help="the type of output to create (default: all)")
+result = parser.parse_args()
+
+# Perform build and package
+pkg = android.Package(result.package[0])
+if (not result.nobuild):
+    pkg.build()
+if (not result.nopackage):
+    pkg.package(result.output)

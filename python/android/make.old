@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+
+from apptools.native import fs
+import os
+import subprocess
+import sys
+
+
+
+# Package name
+PACKAGE_NAME = "Binutils"
+
+# Add include paths
+include_paths = list()
+include_paths.append("/build/toolchain/arm-linux-androideabi/include/c++/4.6/")
+include_paths.append("/build/toolchain/arm-linux-androideabi/include/c++/4.6/arm-linux-androideabi/")
+
+# Add linker paths
+linker_paths = list()
+
+# Add linker libraries
+linker_libs = list()
+#linker_libs.append("stdc++")
+#linker_libs.append("m")
+
+# Create environment variables.
+LDFLAGS = ""
+CCFLAGS = "-Wno-error"
+CXXFLAGS = "-Wno-error"
+for i in linker_paths:
+    LDFLAGS = LDFLAGS + "-L" + i + " "
+for i in linker_libs:
+    LDFLAGS = LDFLAGS + "-l" + i + " "
+for i in include_paths:
+    CCFLAGS = CCFLAGS + "-I" + i + " "
+for i in include_paths:
+    CXXFLAGS = CXXFLAGS + "-I" + i + " "
+
+# Set up environment.
+# FIXME: Import environment.
+global_env = {
+#        "CC": "/build/toolchain/bin/arm-linux-androideabi-gcc",#-4.6.x-google",
+#        "CXX": "/build/toolchain/bin/arm-linux-androideabi-gcc",#-4.6.x-google",
+#        "LD": "/build/toolchain/bin/arm-linux-androideabi-ld",
+#        "AR": "/build/toolchain/bin/arm-linux-androideabi-ar",
+#        "AS":  "/build/toolchain/bin/arm-linux-androideabi-as",
+#        "RANLIB": "/build/toolchain/bin/arm-linux-androideabi-ranlib",
+        "LDFLAGS": LDFLAGS,
+        "CCFLAGS": CCFLAGS,
+        "CXXFLAGS": CXXFLAGS,
+        "PATH": "/build/toolchain/bin/:" + os.environ["PATH"],
+    }
+
+# Define calling function.
+def execute(args):
+    p = subprocess.Popen(args, env=global_env)
+    p.wait()
+    if (p.returncode != 0):
+        sys.exit(1)
+
+# Enter correct directory.
+if (not os.path.exists("/build/prep/" + PACKAGE_NAME + "/build")):
+    os.mkdir("/build/prep/" + PACKAGE_NAME + "/build")
+if (not os.path.exists("/build/prep/" + PACKAGE_NAME + "/install")):
+    os.mkdir("/build/prep/" + PACKAGE_NAME + "/install")
+os.chdir("/build/prep/" + PACKAGE_NAME + "/build")
+
+# Run configure.
+if True:
+    execute([
+        "../src/configure",
+        "--prefix=/data/data/kevinboone.androidterm/kbox/tools",
+        "--build=x86_64-unknown-linux-gnu",
+        "--host=arm-linux-androideabi",
+        "--target=arm-linux-androideabi",
+#        "--build=arm-android-eabi",
+#        "--target=arm-android-eabi",
+#        "--host=x86_64",
+#        "--host=arm-android-eabi",
+#        "--target=arm-android-eabi",
+        ])
+execute([
+    "make"])
+execute([
+    "make",
+    "install",
+    "DESTDIR=/build/prep/" + PACKAGE_NAME + "/install"])
